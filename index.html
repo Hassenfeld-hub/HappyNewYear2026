@@ -91,13 +91,23 @@
             transform: rotate(2deg);
         }
 
-        /* --- 新增：底部提示语 --- */
+        /* 交互提示语 */
         .hint-text {
-            margin-top: 40px; /* 拉开一点距离 */
+            margin-top: 30px;
             font-size: 0.9rem;
             color: var(--c-gray);
             opacity: 0.7;
             animation: blink 2s infinite;
+        }
+
+        /* --- 新增：底部署名 --- */
+        .signature {
+            margin-top: 10px;
+            font-family: 'Permanent Marker', cursive; /* 手写体 */
+            font-size: 0.75rem; /* 小字号 */
+            color: var(--c-gray);
+            opacity: 0.5; /* 半透明，低调 */
+            letter-spacing: 0.5px;
         }
 
         /* 烟花容器 */
@@ -148,8 +158,10 @@
         <div class="big-text crayon-effect">快乐</div>
         <div class="footer-en crayon-effect">HAPPY NEW YEAR</div>
         
-        <!-- 这里是提示语 -->
         <div class="hint-text">👇 点击屏幕绽放烟花 👇</div>
+        
+        <!-- 这里是您的署名 -->
+        <div class="signature">Made by Chengxue Han, 2025.12.31</div>
     </div>
 
     <script>
@@ -216,7 +228,6 @@
             createFirework(e.clientX, e.clientY);
         });
 
-        // 自动播放
         setInterval(() => {
             createFirework(
                 Math.random() * window.innerWidth, 
