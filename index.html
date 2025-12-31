@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 新年快乐</title>
+    <!-- 引入不蒜子计数脚本 -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Permanent+Marker&display=swap');
 
@@ -36,8 +39,16 @@
             align-items: center;
         }
 
+        /* --- 核心修复：蜡笔滤镜 + iOS 防抖动 --- */
         .crayon-effect {
             filter: url('#crayon-texture');
+            /* 开启硬件加速，防止 iOS 上因重绘导致的抖动 */
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            /* 确保图层独立 */
+            will-change: transform; 
         }
 
         .container {
@@ -50,6 +61,7 @@
             height: 100%;
             pointer-events: none;
             z-index: 10;
+            padding-bottom: 60px;
         }
 
         /* 巨大的中文标题 */
@@ -62,8 +74,8 @@
             z-index: 1;
         }
         
-        @media (min-width: 800px) {
-            .big-text { font-size: 180px; }
+        @media (min-width: 800px) and (min-aspect-ratio: 1/1) {
+            .big-text { font-size: 35vh; }
         }
 
         /* 2026 贴纸 */
@@ -74,18 +86,25 @@
             background-color: var(--c-blue);
             padding: 5px 30px;
             border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-            transform: rotate(-6deg);
+            /* 移除 float 动画的 transform，改用 margin 动画，避免触发父级重绘 */
+            transform: rotate(-6deg); 
             z-index: 2;
             margin: -20px 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            animation: float 3s ease-in-out infinite;
+            animation: sticker-float 3s ease-in-out infinite;
+        }
+
+        /* 优化后的浮动动画：只动 translateY，不动 rotate，减少抖动源 */
+        @keyframes sticker-float {
+            0%, 100% { transform: rotate(-6deg) translateY(0); }
+            50% { transform: rotate(-6deg) translateY(-8px); }
         }
 
         /* 底部英文 */
         .footer-en {
-            margin-top: 30px;
+            margin-top: 2vh;
             font-family: 'Permanent Marker', cursive;
-            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-size: clamp(1rem, 4vw, 1.5rem);
             color: var(--c-orange);
             letter-spacing: 2px;
             transform: rotate(2deg);
@@ -93,21 +112,39 @@
 
         /* 交互提示语 */
         .hint-text {
-            margin-top: 30px;
-            font-size: 0.9rem;
+            margin-top: 2vh;
+            font-size: 0.8rem;
             color: var(--c-gray);
             opacity: 0.7;
             animation: blink 2s infinite;
         }
 
-        /* --- 新增：底部署名 --- */
+        /* --- 底部固定区域 --- */
+        .footer-fixed {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 20;
+            pointer-events: none;
+        }
+
         .signature {
-            margin-top: 10px;
-            font-family: 'Permanent Marker', cursive; /* 手写体 */
-            font-size: 0.75rem; /* 小字号 */
+            font-family: 'Permanent Marker', cursive;
+            font-size: 0.7rem;
             color: var(--c-gray);
-            opacity: 0.5; /* 半透明，低调 */
+            opacity: 0.6;
             letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        /* 浏览量样式 */
+        .visit-count {
+            font-family: 'ZCOOL KuaiLe', cursive; /* 改用中文适配字体 */
+            font-size: 0.7rem; 
+            color: var(--c-gray);
+            opacity: 0.5;
         }
 
         /* 烟花容器 */
@@ -126,11 +163,6 @@
             border-radius: 50%;
             width: 10px;
             height: 10px;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: rotate(-6deg) translateY(0) scale(1); }
-            50% { transform: rotate(-4deg) translateY(-5px) scale(1.05); }
         }
 
         @keyframes blink {
@@ -159,9 +191,16 @@
         <div class="footer-en crayon-effect">HAPPY NEW YEAR</div>
         
         <div class="hint-text">👇 点击屏幕绽放烟花 👇</div>
-        
-        <!-- 这里是您的署名 -->
+    </div>
+    
+    <!-- 底部固定信息 -->
+    <div class="footer-fixed">
         <div class="signature">Made by Chengxue Han, 2025.12.31</div>
+        
+        <!-- 浏览量统计容器 -->
+        <div class="visit-count" id="busuanzi_container_site_pv" style="display:none">
+            🎆 烟花点亮人数: <span id="busuanzi_value_site_pv"></span>
+        </div>
     </div>
 
     <script>
